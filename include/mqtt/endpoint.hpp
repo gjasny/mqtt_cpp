@@ -62,6 +62,7 @@
 #include <mqtt/deprecated.hpp>
 #include <mqtt/deprecated_msg.hpp>
 #include <mqtt/error_code.hpp>
+#include <mqtt/log.hpp>
 
 #if defined(MQTT_USE_WS)
 #include <mqtt/ws_endpoint.hpp>
@@ -1000,7 +1001,16 @@ public:
         v5::properties props = {},
         any life_keeper = {}
     ) {
-        if(pubopts.get_qos() == qos::at_most_once) {
+        MQTT_LOG("api", info)
+            << log::add_value(address, this)
+            << "publish"
+            << " packet_id:" << packet_id
+            << " topic_name:" << topic_name
+            << " qos:" << pubopts.get_qos()
+            << " retain:" << pubopts.get_retain()
+            << " dup:" << pubopts.get_dup();
+
+        if (pubopts.get_qos() == qos::at_most_once) {
             // In the at_most_once case, we know a priori that send_publish won't track the lifetime.
             send_publish(packet_id,
                          as::buffer(topic_name),
